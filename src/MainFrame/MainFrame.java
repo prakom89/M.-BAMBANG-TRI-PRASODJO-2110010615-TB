@@ -52,7 +52,7 @@ public class MainFrame extends javax.swing.JFrame {
         tblAset = new javax.swing.JTable();
         btnTambahAset = new javax.swing.JButton();
         btnUpdateAset = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
+        btnHapusAset = new javax.swing.JButton();
         jLabel7 = new javax.swing.JLabel();
         txtTanggalBeli = new com.toedter.calendar.JDateChooser();
         cmbKategori = new javax.swing.JComboBox<>();
@@ -115,7 +115,12 @@ public class MainFrame extends javax.swing.JFrame {
             }
         });
 
-        jButton4.setText("HAPUS ASET");
+        btnHapusAset.setText("HAPUS ASET");
+        btnHapusAset.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnHapusAsetActionPerformed(evt);
+            }
+        });
 
         jLabel7.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         jLabel7.setText("APLIKASI INVENTARISASI ASET");
@@ -152,7 +157,7 @@ public class MainFrame extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(btnUpdateAset, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnTambahAset, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(btnHapusAset, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(36, 36, 36))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
@@ -196,7 +201,7 @@ public class MainFrame extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnUpdateAset, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(btnHapusAset, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(33, 33, 33)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 383, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(28, Short.MAX_VALUE))
@@ -226,20 +231,23 @@ public class MainFrame extends javax.swing.JFrame {
     }
 }
     
-    private int getIdKategori(String namaKategori) {
-    int idKategori = -1; // Default -1 jika tidak ditemukan
+    private int getIdKategori(String kategori) {
+     int idKategori = 0;
+
     try (Connection conn = KoneksiDB.getKoneksi();
          PreparedStatement stmt = conn.prepareStatement("SELECT id_kategori FROM kategori WHERE nama_kategori = ?")) {
 
-        stmt.setString(1, namaKategori); // Isi parameter nama kategori
+        stmt.setString(1, kategori);
         ResultSet rs = stmt.executeQuery();
+
         if (rs.next()) {
-            idKategori = rs.getInt("id_kategori"); // Ambil id_kategori
+            idKategori = rs.getInt("id_kategori"); // Pastikan ini Integer
         }
 
     } catch (SQLException e) {
-        JOptionPane.showMessageDialog(this, "Gagal mendapatkan ID kategori: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(this, "Gagal mengambil ID kategori: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
     }
+
     return idKategori;
 }
     
@@ -287,67 +295,66 @@ public class MainFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_btnTambahAsetActionPerformed
 
     private void btnUpdateAsetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateAsetActionPerformed
-int selectedRow = tblAset.getSelectedRow();  // Ambil baris yang dipilih
-
-    if (selectedRow == -1) {
-        JOptionPane.showMessageDialog(this, "Pilih baris yang ingin diupdate!", "Error", JOptionPane.ERROR_MESSAGE);
+    // Pastikan ada baris yang dipilih di tabel
+    int row = tblAset.getSelectedRow();
+    if (row == -1) {
+        JOptionPane.showMessageDialog(this, "Pilih data aset yang ingin diperbarui", "Peringatan", JOptionPane.WARNING_MESSAGE);
         return;
     }
 
-    // Ambil ID Aset dari baris yang dipilih
-    int idAset = (int) tblAset.getValueAt(selectedRow, 0); // Kolom pertama adalah ID Aset
+    // Ambil ID Aset dari tabel (pastikan data tipe Integer)
+    int idAset = (int) tblAset.getValueAt(row, 0); // Kolom 0 harus berisi ID Aset sebagai Integer
 
-    // Ambil data lainnya dari form
-    String namaAset = txtNamaAset.getText();
-    String kategori = cmbKategori.getSelectedItem().toString(); // Ambil kategori yang dipilih
-    String jumlahText = txtJumlah.getText();
-    String kondisi = txtKondisi.getText();
-    String lokasi = txtLokasi.getText();
-    
-    // Cek jika tanggal beli kosong
-    if (txtTanggalBeli.getDate() == null) {
-        JOptionPane.showMessageDialog(this, "Tanggal Beli tidak boleh kosong!", "Error", JOptionPane.ERROR_MESSAGE);
-        return;  // Keluar jika tanggal kosong
-    }
+    // Ambil input dari pengguna
+    String namaAset = txtNamaAset.getText().trim();
+    String kondisi = txtKondisi.getText().trim();
+    String lokasi = txtLokasi.getText().trim();
+    String kategori = (String) cmbKategori.getSelectedItem(); // Nama kategori
+    java.util.Date tanggalBeliUtil = txtTanggalBeli.getDate();
 
-    java.util.Date tanggalBeli = txtTanggalBeli.getDate();
-    java.sql.Date sqlTanggalBeli = new java.sql.Date(tanggalBeli.getTime());
-
-    // Validasi input jumlah
-    if (jumlahText.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Jumlah Aset tidak boleh kosong!", "Error", JOptionPane.ERROR_MESSAGE);
+    // Validasi input
+    if (namaAset.isEmpty() || kondisi.isEmpty() || lokasi.isEmpty() || tanggalBeliUtil == null) {
+        JOptionPane.showMessageDialog(this, "Mohon lengkapi semua data", "Peringatan", JOptionPane.WARNING_MESSAGE);
         return;
     }
 
-    int jumlah = 0;
+    // Validasi jumlah aset
+    int jumlahAset;
     try {
-        jumlah = Integer.parseInt(jumlahText);  // Coba konversi jumlah ke int
+        jumlahAset = Integer.parseInt(txtJumlah.getText().trim()); // Pastikan jumlah adalah angka
     } catch (NumberFormatException e) {
-        JOptionPane.showMessageDialog(this, "Jumlah Aset harus berupa angka!", "Error", JOptionPane.ERROR_MESSAGE);
-        return;  // Keluar dari metode jika konversi gagal
+        JOptionPane.showMessageDialog(this, "Jumlah aset harus berupa angka", "Peringatan", JOptionPane.WARNING_MESSAGE);
+        return;
     }
 
-    // Update data di database
+    // Konversi tanggal ke format SQL
+    java.sql.Date tanggalBeli = new java.sql.Date(tanggalBeliUtil.getTime());
+
+    // Ambil ID kategori berdasarkan nama kategori yang dipilih
+    int idKategori = getIdKategori(kategori); // Pastikan fungsi ini benar
+
+    // Proses update data ke database
     try (Connection conn = KoneksiDB.getKoneksi();
-         PreparedStatement pst = conn.prepareStatement("UPDATE aset SET nama_aset = ?, kategori = ?, jumlah = ?, kondisi = ?, lokasi = ?, tanggal_beli = ? WHERE id_aset = ?")) {
+         PreparedStatement stmt = conn.prepareStatement(
+             "UPDATE aset SET nama_aset = ?, id_kategori = ?, jumlah = ?, kondisi = ?, lokasi = ?, tanggal_beli = ? WHERE id_aset = ?")) {
 
-        pst.setString(1, namaAset);
-        pst.setString(2, kategori);
-        pst.setInt(3, jumlah);
-        pst.setString(4, kondisi);
-        pst.setString(5, lokasi);
-        pst.setDate(6, sqlTanggalBeli);
-        pst.setInt(7, idAset);
+        stmt.setString(1, namaAset);
+        stmt.setInt(2, idKategori); // ID Kategori
+        stmt.setInt(3, jumlahAset);
+        stmt.setString(4, kondisi);
+        stmt.setString(5, lokasi);
+        stmt.setDate(6, tanggalBeli);
+        stmt.setInt(7, idAset); // ID Aset
 
-        pst.executeUpdate();
+        stmt.executeUpdate();
+        JOptionPane.showMessageDialog(this, "Data aset berhasil diperbarui", "Sukses", JOptionPane.INFORMATION_MESSAGE);
 
-        tampilkanData();  // Refresh JTable setelah update
-        clearForm();  // Clear form setelah update
-
-        JOptionPane.showMessageDialog(this, "Update Data Berhasil", "Notifikasi", JOptionPane.INFORMATION_MESSAGE);
+        // Refresh tabel setelah update
+        tampilkanData();
+        clearForm();
 
     } catch (SQLException e) {
-        JOptionPane.showMessageDialog(this, "Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(this, "Gagal memperbarui data aset: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
     }
     }//GEN-LAST:event_btnUpdateAsetActionPerformed
 
@@ -368,7 +375,51 @@ int selectedRow = tblAset.getSelectedRow();  // Ambil baris yang dipilih
         String kategoriNama = tblAset.getValueAt(selectedRow, 2).toString(); // Nama Kategori
         cmbKategori.setSelectedItem(kategoriNama);
     }
+    
     }//GEN-LAST:event_tblAsetMouseClicked
+
+    private void btnHapusAsetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHapusAsetActionPerformed
+            // Periksa apakah ada baris yang dipilih
+    int row = tblAset.getSelectedRow();
+    if (row == -1) {
+        JOptionPane.showMessageDialog(this, "Pilih data aset yang ingin dihapus", "Peringatan", JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+
+    // Ambil ID Aset dari tabel
+    int idAset = (int) tblAset.getValueAt(row, 0); // Kolom pertama adalah ID Aset
+
+    // Konfirmasi penghapusan
+    int confirm = JOptionPane.showConfirmDialog(
+        this,
+        "Apakah Anda yakin ingin menghapus data aset dengan ID: " + idAset + "?",
+        "Konfirmasi Hapus",
+        JOptionPane.YES_NO_OPTION
+    );
+
+    // Jika pengguna memilih "Yes"
+    if (confirm == JOptionPane.YES_OPTION) {
+        try (Connection conn = KoneksiDB.getKoneksi();
+             PreparedStatement stmt = conn.prepareStatement("DELETE FROM aset WHERE id_aset = ?")) {
+
+            // Set parameter ID Aset
+            stmt.setInt(1, idAset);
+
+            // Eksekusi penghapusan
+            int rowsDeleted = stmt.executeUpdate();
+            if (rowsDeleted > 0) {
+                JOptionPane.showMessageDialog(this, "Data aset berhasil dihapus", "Sukses", JOptionPane.INFORMATION_MESSAGE);
+            }
+
+            // Refresh tabel setelah penghapusan
+            tampilkanData();
+            clearForm();
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Gagal menghapus data aset: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    }//GEN-LAST:event_btnHapusAsetActionPerformed
 
     private void setKategoriComboBox(String kategoriNama) {
     for (int i = 0; i < cmbKategori.getItemCount(); i++) {
@@ -398,35 +449,26 @@ int selectedRow = tblAset.getSelectedRow();  // Ambil baris yang dipilih
  
 // Fungsi untuk menampilkan data dari database ke JTable
     private void tampilkanData() {
-       DefaultTableModel model = new DefaultTableModel();
-    model.addColumn("ID Aset");
-    model.addColumn("Nama Aset");
-    model.addColumn("Kategori");
-    model.addColumn("Jumlah");
-    model.addColumn("Kondisi");
-    model.addColumn("Lokasi");
-    model.addColumn("Tanggal Beli");
+     DefaultTableModel model = (DefaultTableModel) tblAset.getModel();
+    model.setRowCount(0); // Hapus data lama di tabel
 
     try (Connection conn = KoneksiDB.getKoneksi();
          Statement stmt = conn.createStatement();
          ResultSet rs = stmt.executeQuery(
-            "SELECT a.id_aset, a.nama_aset, k.nama_kategori, a.jumlah, a.kondisi, a.lokasi, a.tanggal_beli " +
-            "FROM aset a " +
-            "JOIN kategori k ON a.id_kategori = k.id_kategori")) {
+             "SELECT a.id_aset, a.nama_aset, k.nama_kategori, a.jumlah, a.kondisi, a.lokasi, a.tanggal_beli " +
+             "FROM aset a JOIN kategori k ON a.id_kategori = k.id_kategori")) {
 
         while (rs.next()) {
-            model.addRow(new Object[]{
-                rs.getString("id_aset"),
+            model.addRow(new Object[] {
+                rs.getInt("id_aset"),               // Pastikan ini Integer
                 rs.getString("nama_aset"),
-                rs.getString("nama_kategori"), // Ambil nama kategori dari tabel kategori
-                rs.getInt("jumlah"),
+                rs.getString("nama_kategori"),      // Nama kategori
+                rs.getInt("jumlah"),                // Jumlah juga harus Integer
                 rs.getString("kondisi"),
                 rs.getString("lokasi"),
                 rs.getDate("tanggal_beli")
             });
         }
-
-        tblAset.setModel(model);
 
     } catch (SQLException e) {
         JOptionPane.showMessageDialog(this, "Gagal menampilkan data: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -434,10 +476,10 @@ int selectedRow = tblAset.getSelectedRow();  // Ambil baris yang dipilih
     }  
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnHapusAset;
     private javax.swing.JButton btnTambahAset;
     private javax.swing.JButton btnUpdateAset;
     private javax.swing.JComboBox<String> cmbKategori;
-    private javax.swing.JButton jButton4;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
