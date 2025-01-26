@@ -4,6 +4,15 @@
  * and open the template in the editor.
  */
 package MainFrame;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.FontFactory;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
+import java.awt.Font;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -56,6 +65,8 @@ public class MainFrame extends javax.swing.JFrame {
         jLabel7 = new javax.swing.JLabel();
         txtTanggalBeli = new com.toedter.calendar.JDateChooser();
         cmbKategori = new javax.swing.JComboBox<>();
+        btnClear = new javax.swing.JButton();
+        btnCetakPDF = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -115,7 +126,7 @@ public class MainFrame extends javax.swing.JFrame {
             }
         });
 
-        btnHapusAset.setText("HAPUS ASET");
+        btnHapusAset.setText("HAPUS");
         btnHapusAset.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnHapusAsetActionPerformed(evt);
@@ -126,6 +137,20 @@ public class MainFrame extends javax.swing.JFrame {
         jLabel7.setText("APLIKASI INVENTARISASI ASET");
 
         cmbKategori.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+
+        btnClear.setText("CLEAR");
+        btnClear.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnClearActionPerformed(evt);
+            }
+        });
+
+        btnCetakPDF.setText("CETAK LAPORAN");
+        btnCetakPDF.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCetakPDFActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -154,14 +179,22 @@ public class MainFrame extends javax.swing.JFrame {
                             .addComponent(txtTanggalBeli, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(cmbKategori, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(btnUpdateAset, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnTambahAset, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnHapusAset, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(36, 36, 36))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addComponent(btnUpdateAset, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(btnTambahAset, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(btnHapusAset, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnClear, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(35, 35, 35))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jScrollPane1)
+                .addContainerGap())
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(btnCetakPDF, javax.swing.GroupLayout.PREFERRED_SIZE, 181, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -201,10 +234,14 @@ public class MainFrame extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnUpdateAset, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(btnHapusAset, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(btnHapusAset, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btnClear, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addGap(33, 33, 33)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 383, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(28, Short.MAX_VALUE))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 340, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(btnCetakPDF, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
@@ -421,6 +458,66 @@ public class MainFrame extends javax.swing.JFrame {
     }
     }//GEN-LAST:event_btnHapusAsetActionPerformed
 
+    private void btnClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClearActionPerformed
+        clearForm();
+    }//GEN-LAST:event_btnClearActionPerformed
+
+    private void btnCetakPDFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCetakPDFActionPerformed
+        // Nama file output PDF
+    String filePath = "Laporan_Aset.pdf";
+
+    // Membuat dokumen PDF
+    Document document = new Document() {};
+    try {
+        // Buat instance PDF Writer
+        PdfWriter.getInstance((com.itextpdf.text.Document) document, new FileOutputStream(filePath));
+
+        // Membuka dokumen
+        document.open();
+
+        // Tambahkan judul laporan
+        document.add(new Paragraph("Laporan Aset", FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18, Font.BOLD)));
+        document.add(new Paragraph(" "));
+        document.add(new Paragraph("Tanggal Cetak: " + new java.util.Date()));
+        document.add(new Paragraph(" "));
+
+        // Membuat tabel
+        PdfPTable table = new PdfPTable(7); // Jumlah kolom tabel
+        table.setWidthPercentage(100);
+
+        // Tambahkan header kolom
+        table.addCell("ID Aset");
+        table.addCell("Nama Aset");
+        table.addCell("Kategori");
+        table.addCell("Jumlah");
+        table.addCell("Kondisi");
+        table.addCell("Lokasi");
+        table.addCell("Tanggal Beli");
+
+        // Ambil data dari tabel aset
+        for (int i = 0; i < tblAset.getRowCount(); i++) {
+            table.addCell(tblAset.getValueAt(i, 0).toString()); // ID Aset
+            table.addCell(tblAset.getValueAt(i, 1).toString()); // Nama Aset
+            table.addCell(tblAset.getValueAt(i, 2).toString()); // Kategori
+            table.addCell(tblAset.getValueAt(i, 3).toString()); // Jumlah
+            table.addCell(tblAset.getValueAt(i, 4).toString()); // Kondisi
+            table.addCell(tblAset.getValueAt(i, 5).toString()); // Lokasi
+            table.addCell(tblAset.getValueAt(i, 6).toString()); // Tanggal Beli
+        }
+
+        // Tambahkan tabel ke dokumen
+        document.add(table);
+
+        // Tampilkan pesan sukses
+        JOptionPane.showMessageDialog(this, "Laporan berhasil dicetak ke " + filePath, "Sukses", JOptionPane.INFORMATION_MESSAGE);
+
+    } catch (DocumentException | FileNotFoundException e) {
+        JOptionPane.showMessageDialog(this, "Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    } finally {
+        document.close();
+    }
+    }//GEN-LAST:event_btnCetakPDFActionPerformed
+
     private void setKategoriComboBox(String kategoriNama) {
     for (int i = 0; i < cmbKategori.getItemCount(); i++) {
         if (cmbKategori.getItemAt(i).equals(kategoriNama)) {
@@ -476,6 +573,8 @@ public class MainFrame extends javax.swing.JFrame {
     }  
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnCetakPDF;
+    private javax.swing.JButton btnClear;
     private javax.swing.JButton btnHapusAset;
     private javax.swing.JButton btnTambahAset;
     private javax.swing.JButton btnUpdateAset;
