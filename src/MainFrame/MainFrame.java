@@ -18,7 +18,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import javax.swing.DefaultComboBoxModel;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
@@ -35,7 +36,7 @@ public class MainFrame extends javax.swing.JFrame {
     public MainFrame() {
         initComponents();
         tampilkanData();  // Memuat data ke dalam JTable saat aplikasi dibuka
-        loadKategori();
+        loadAset();
     }
 
     /**
@@ -47,12 +48,10 @@ public class MainFrame extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        txtNamaAset = new javax.swing.JTextField();
         txtJumlah = new javax.swing.JTextField();
         txtKondisi = new javax.swing.JTextField();
         txtLokasi = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
@@ -64,9 +63,14 @@ public class MainFrame extends javax.swing.JFrame {
         btnHapusAset = new javax.swing.JButton();
         jLabel7 = new javax.swing.JLabel();
         txtTanggalBeli = new com.toedter.calendar.JDateChooser();
-        cmbKategori = new javax.swing.JComboBox<>();
         btnClear = new javax.swing.JButton();
         btnCetakPDF = new javax.swing.JButton();
+        cmbAset = new javax.swing.JComboBox<>();
+        jLabel8 = new javax.swing.JLabel();
+        txtKeterangan = new javax.swing.JTextField();
+        menuBar = new javax.swing.JMenuBar();
+        menuKategori = new javax.swing.JMenu();
+        menuAset = new javax.swing.JMenu();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -79,9 +83,6 @@ public class MainFrame extends javax.swing.JFrame {
         jLabel1.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         jLabel1.setText("Nama Aset");
 
-        jLabel2.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        jLabel2.setText("Kategori");
-
         jLabel3.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         jLabel3.setText("Jumlah");
 
@@ -92,7 +93,7 @@ public class MainFrame extends javax.swing.JFrame {
         jLabel5.setText("Lokasi");
 
         jLabel6.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        jLabel6.setText("Tanggal Beli");
+        jLabel6.setText("Tanggal Transaksi");
 
         tblAset.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -102,7 +103,7 @@ public class MainFrame extends javax.swing.JFrame {
                 {null, null, null, null, null, null, null}
             },
             new String [] {
-                "ID", "Nama Aset", "Kategori", "Jumlah", "Kondisi", "Lokasi", "Tanggal Beli"
+                "ID", "Nama Aset", "Jumlah", "Tanggal Transaksi", "Kondisi", "Lokasi", "Keterangan"
             }
         ));
         tblAset.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -136,8 +137,6 @@ public class MainFrame extends javax.swing.JFrame {
         jLabel7.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         jLabel7.setText("APLIKASI INVENTARISASI ASET");
 
-        cmbKategori.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-
         btnClear.setText("CLEAR");
         btnClear.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -152,49 +151,83 @@ public class MainFrame extends javax.swing.JFrame {
             }
         });
 
+        cmbAset.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+
+        jLabel8.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        jLabel8.setText("Keterangan");
+
+        txtKeterangan.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtKeteranganActionPerformed(evt);
+            }
+        });
+
+        menuKategori.setLabel("Kategori");
+        menuKategori.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                menuKategoriMouseClicked(evt);
+            }
+        });
+        menuKategori.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuKategoriActionPerformed(evt);
+            }
+        });
+        menuBar.add(menuKategori);
+
+        menuAset.setLabel("Aset");
+        menuAset.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                menuAsetMouseClicked(evt);
+            }
+        });
+        menuBar.add(menuAset);
+
+        setJMenuBar(menuBar);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(21, 21, 21)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel7)
-                        .addGap(0, 381, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel2)
-                            .addComponent(jLabel3)
-                            .addComponent(jLabel4)
-                            .addComponent(jLabel5)
-                            .addComponent(jLabel6)
-                            .addComponent(jLabel1))
-                        .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(txtJumlah)
-                            .addComponent(txtKondisi)
-                            .addComponent(txtLokasi)
-                            .addComponent(txtNamaAset)
-                            .addComponent(txtTanggalBeli, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(cmbKategori, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                        .addComponent(btnUpdateAset, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(btnTambahAset, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(btnHapusAset, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnClear, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(35, 35, 35))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane1)
-                .addContainerGap())
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(btnCetakPDF, javax.swing.GroupLayout.PREFERRED_SIZE, 181, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(21, 21, 21)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel7)
+                                .addGap(0, 381, Short.MAX_VALUE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(jLabel3)
+                                    .addComponent(jLabel4)
+                                    .addComponent(jLabel5)
+                                    .addComponent(jLabel6)
+                                    .addComponent(jLabel1)
+                                    .addComponent(jLabel8))
+                                .addGap(18, 18, 18)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(txtJumlah)
+                                    .addComponent(txtKondisi)
+                                    .addComponent(txtLokasi)
+                                    .addComponent(txtTanggalBeli, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(cmbAset, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(txtKeterangan))))
+                        .addGap(30, 30, 30)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addComponent(btnHapusAset, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(btnClear, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(btnTambahAset, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btnUpdateAset, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addGap(0, 0, Short.MAX_VALUE)
+                                .addComponent(btnCetakPDF, javax.swing.GroupLayout.PREFERRED_SIZE, 181, javax.swing.GroupLayout.PREFERRED_SIZE)))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -207,16 +240,16 @@ public class MainFrame extends javax.swing.JFrame {
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel1)
-                            .addComponent(txtNamaAset, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(4, 4, 4)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel2)
-                            .addComponent(cmbKategori, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(6, 6, 6)
+                            .addComponent(cmbAset, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel3)
                             .addComponent(txtJumlah, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(8, 8, 8)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel6)
+                            .addComponent(txtTanggalBeli, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel4)
                             .addComponent(txtKondisi, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -225,9 +258,9 @@ public class MainFrame extends javax.swing.JFrame {
                             .addComponent(jLabel5)
                             .addComponent(txtLokasi, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel6)
-                            .addComponent(txtTanggalBeli, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel8)
+                            .addComponent(txtKeterangan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(46, 46, 46)
                         .addComponent(btnTambahAset, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -239,8 +272,8 @@ public class MainFrame extends javax.swing.JFrame {
                             .addComponent(btnClear, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addGap(33, 33, 33)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 340, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(btnCetakPDF, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnCetakPDF, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -250,81 +283,115 @@ public class MainFrame extends javax.swing.JFrame {
     private void txtLokasiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtLokasiActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_txtLokasiActionPerformed
-
-    private void loadKategori() {
-    DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
+    
+    private void loadAset() {
     try (Connection conn = KoneksiDB.getKoneksi();
          Statement stmt = conn.createStatement();
-         ResultSet rs = stmt.executeQuery("SELECT * FROM kategori")) {
+         ResultSet rs = stmt.executeQuery("SELECT id_aset, nama_aset FROM aset")) {
 
+        cmbAset.removeAllItems();
+        // Tambahkan item default pertama di ComboBox
+        cmbAset.addItem("Pilih Aset");
         while (rs.next()) {
-            String kategori = rs.getString("nama_kategori");
-            model.addElement(kategori);  // Menambahkan kategori ke ComboBox
+            cmbAset.addItem(rs.getString("nama_aset"));
         }
-        cmbKategori.setModel(model);  // Set model ke ComboBox
 
     } catch (SQLException e) {
-        JOptionPane.showMessageDialog(this, "Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(this, "Gagal memuat data aset: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
     }
-}
+    }
     
-    private int getIdKategori(String kategori) {
-     int idKategori = 0;
-
+    private int getIdAset(String namaAset) {
     try (Connection conn = KoneksiDB.getKoneksi();
-         PreparedStatement stmt = conn.prepareStatement("SELECT id_kategori FROM kategori WHERE nama_kategori = ?")) {
+         PreparedStatement stmt = conn.prepareStatement("SELECT id_aset FROM aset WHERE nama_aset = ?")) {
 
-        stmt.setString(1, kategori);
+        stmt.setString(1, namaAset);
         ResultSet rs = stmt.executeQuery();
-
         if (rs.next()) {
-            idKategori = rs.getInt("id_kategori"); // Pastikan ini Integer
+            return rs.getInt("id_aset");
         }
-
     } catch (SQLException e) {
-        JOptionPane.showMessageDialog(this, "Gagal mengambil ID kategori: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(this, "Gagal mendapatkan ID Aset: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
     }
-
-    return idKategori;
+    return -1; // Jika aset tidak ditemukan
 }
-    
+        
     private void btnTambahAsetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTambahAsetActionPerformed
     // Ambil nilai dari form
-    String namaAset = txtNamaAset.getText();
-    String kategori = cmbKategori.getSelectedItem().toString(); // Nama Kategori
-    int jumlah = Integer.parseInt(txtJumlah.getText());
-    String kondisi = txtKondisi.getText();
-    String lokasi = txtLokasi.getText();
+    String namaAset = (String) cmbAset.getSelectedItem(); // Nama Aset dari ComboBox
+    String jumlahStr = txtJumlah.getText().trim();
+    String kondisi = txtKondisi.getText().trim();
+    String lokasi = txtLokasi.getText().trim();
     java.util.Date tanggalBeliUtil = txtTanggalBeli.getDate(); // Ambil tanggal dari JDateChooser
-    java.sql.Date tanggalBeli = new java.sql.Date(tanggalBeliUtil.getTime()); // Konversi ke java.sql.Date
+    String keterangan = txtKeterangan.getText().trim();
+    
+    // Validasi Nama Aset
+    if (cmbAset.getSelectedIndex() == 0 || namaAset.equals("Pilih Aset")) {
+        JOptionPane.showMessageDialog(this, "Aset harus dipilih.", "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
 
-    // Ambil ID Kategori berdasarkan Nama Kategori
-    int idKategori = getIdKategori(kategori); // Metode untuk mendapatkan ID Kategori
-    if (idKategori == -1) {
-        JOptionPane.showMessageDialog(this, "Kategori tidak valid.", "Error", JOptionPane.ERROR_MESSAGE);
+    // Validasi Jumlah
+    int jumlah = 0;
+    try {
+        jumlah = Integer.parseInt(jumlahStr);
+        if (jumlah <= 0) {
+            JOptionPane.showMessageDialog(this, "Jumlah harus lebih besar dari 0.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+    } catch (NumberFormatException e) {
+        JOptionPane.showMessageDialog(this, "Jumlah harus berupa angka.", "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+
+    // Validasi Kondisi
+    if (kondisi.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Kondisi tidak boleh kosong.", "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+
+    // Validasi Lokasi
+    if (lokasi.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Lokasi tidak boleh kosong.", "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+
+    // Validasi Tanggal Beli
+    if (tanggalBeliUtil == null) {
+        JOptionPane.showMessageDialog(this, "Tanggal beli tidak boleh kosong.", "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+
+    // Konversi tanggal ke java.sql.Date
+    java.sql.Date tanggalBeli = new java.sql.Date(tanggalBeliUtil.getTime());
+
+    // Ambil ID Aset berdasarkan Nama Aset
+    int idAset = getIdAset(namaAset); // Metode untuk mendapatkan ID Aset
+    if (idAset == -1) {
+        JOptionPane.showMessageDialog(this, "Aset tidak valid.", "Error", JOptionPane.ERROR_MESSAGE);
         return;
     }
 
     // Proses penyimpanan ke database
     try (Connection conn = KoneksiDB.getKoneksi();
          PreparedStatement stmt = conn.prepareStatement(
-            "INSERT INTO aset (nama_aset, id_kategori, jumlah, kondisi, lokasi, tanggal_beli) VALUES (?, ?, ?, ?, ?, ?)")) {
+         "INSERT INTO transaksi (id_aset, jumlah, tanggal_beli, kondisi, lokasi, keterangan) VALUES (?, ?, ?, ?, ?, ?)")) {
 
         // Isi parameter query
-        stmt.setString(1, namaAset);
-        stmt.setInt(2, idKategori);
-        stmt.setInt(3, jumlah);
+        stmt.setInt(1, idAset);
+        stmt.setInt(2, jumlah);
+        stmt.setDate(3, tanggalBeli);
         stmt.setString(4, kondisi);
         stmt.setString(5, lokasi);
-        stmt.setDate(6, tanggalBeli);
+        stmt.setString(6, keterangan);
 
         // Eksekusi query
         stmt.executeUpdate();
-        JOptionPane.showMessageDialog(this, "Data aset berhasil ditambahkan.", "Sukses", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(this, "Data transaksi berhasil ditambahkan.", "Sukses", JOptionPane.INFORMATION_MESSAGE);
 
         // Bersihkan form setelah data ditambahkan
         clearForm();
-        tampilkanData(); // Refresh data di JTable
+        tampilkanData(); // Refresh data di JTable Transaksi
 
     } catch (SQLException e) {
         JOptionPane.showMessageDialog(this, "Gagal menambahkan data: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -332,89 +399,118 @@ public class MainFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_btnTambahAsetActionPerformed
 
     private void btnUpdateAsetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateAsetActionPerformed
-    // Pastikan ada baris yang dipilih di tabel
-    int row = tblAset.getSelectedRow();
-    if (row == -1) {
-        JOptionPane.showMessageDialog(this, "Pilih data aset yang ingin diperbarui", "Peringatan", JOptionPane.WARNING_MESSAGE);
-        return;
-    }
-
-    // Ambil ID Aset dari tabel (pastikan data tipe Integer)
-    int idAset = (int) tblAset.getValueAt(row, 0); // Kolom 0 harus berisi ID Aset sebagai Integer
-
-    // Ambil input dari pengguna
-    String namaAset = txtNamaAset.getText().trim();
-    String kondisi = txtKondisi.getText().trim();
-    String lokasi = txtLokasi.getText().trim();
-    String kategori = (String) cmbKategori.getSelectedItem(); // Nama kategori
-    java.util.Date tanggalBeliUtil = txtTanggalBeli.getDate();
-
     // Validasi input
-    if (namaAset.isEmpty() || kondisi.isEmpty() || lokasi.isEmpty() || tanggalBeliUtil == null) {
-        JOptionPane.showMessageDialog(this, "Mohon lengkapi semua data", "Peringatan", JOptionPane.WARNING_MESSAGE);
+    if (cmbAset.getSelectedItem() == null || txtJumlah.getText().isEmpty() || 
+        txtTanggalBeli.getDate() == null || txtKondisi.getText().isEmpty() || 
+        txtLokasi.getText().isEmpty() || txtKeterangan.getText().isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Semua field harus diisi!", "Peringatan", JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+    String idTransaksi = null;
+    // Ambil idTransaksi dari baris yang dipilih di JTable
+    int selectedRow = tblAset.getSelectedRow();
+    if (selectedRow != -1) {
+        idTransaksi = tblAset.getValueAt(selectedRow, 0).toString(); // Kolom ID Transaksi
+    } else {
+        JOptionPane.showMessageDialog(this, "Pilih transaksi yang akan diperbarui.", "Peringatan", JOptionPane.WARNING_MESSAGE);
         return;
     }
 
-    // Validasi jumlah aset
-    int jumlahAset;
     try {
-        jumlahAset = Integer.parseInt(txtJumlah.getText().trim()); // Pastikan jumlah adalah angka
+        // Ambil data dari form
+        String namaAset = cmbAset.getSelectedItem().toString(); // Nama aset dari ComboBox
+        int jumlah = Integer.parseInt(txtJumlah.getText()); // Konversi jumlah ke int
+        java.util.Date tanggalBeli = txtTanggalBeli.getDate();
+        java.sql.Date sqlTanggalBeli = new java.sql.Date(tanggalBeli.getTime());
+        String kondisi = txtKondisi.getText();
+        String lokasi = txtLokasi.getText();
+        String keterangan = txtKeterangan.getText();
+
+        // Ambil ID aset berdasarkan nama aset
+        int idAset = getIdAset(namaAset); // Metode untuk mendapatkan ID aset berdasarkan nama
+        if (idAset == -1) {
+            JOptionPane.showMessageDialog(this, "Aset tidak valid.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Update data aset di database
+        try (Connection conn = KoneksiDB.getKoneksi()) {
+            // Query update ke tabel transaksi
+            String updateAsetQuery = "UPDATE transaksi SET id_aset = ?, jumlah = ?, tanggal_beli = ?, kondisi = ?, lokasi = ?, keterangan = ? WHERE id_transaksi = ?";
+            try (PreparedStatement stmt = conn.prepareStatement(updateAsetQuery)) {
+                stmt.setInt(1, idAset);
+                stmt.setInt(2, jumlah);
+                stmt.setDate(3, sqlTanggalBeli);
+                stmt.setString(4, kondisi);
+                stmt.setString(5, lokasi);
+                stmt.setString(6, keterangan);
+                stmt.setString(7, idTransaksi);
+
+                int rowsUpdated = stmt.executeUpdate();
+                if (rowsUpdated > 0) {
+                    JOptionPane.showMessageDialog(this, "Data aset berhasil diperbarui.", "Sukses", JOptionPane.INFORMATION_MESSAGE);
+                }
+            }
+            
+            // Refresh data di JTable
+            tampilkanData();
+            clearForm();
+        }
     } catch (NumberFormatException e) {
-        JOptionPane.showMessageDialog(this, "Jumlah aset harus berupa angka", "Peringatan", JOptionPane.WARNING_MESSAGE);
-        return;
-    }
-
-    // Konversi tanggal ke format SQL
-    java.sql.Date tanggalBeli = new java.sql.Date(tanggalBeliUtil.getTime());
-
-    // Ambil ID kategori berdasarkan nama kategori yang dipilih
-    int idKategori = getIdKategori(kategori); // Pastikan fungsi ini benar
-
-    // Proses update data ke database
-    try (Connection conn = KoneksiDB.getKoneksi();
-         PreparedStatement stmt = conn.prepareStatement(
-             "UPDATE aset SET nama_aset = ?, id_kategori = ?, jumlah = ?, kondisi = ?, lokasi = ?, tanggal_beli = ? WHERE id_aset = ?")) {
-
-        stmt.setString(1, namaAset);
-        stmt.setInt(2, idKategori); // ID Kategori
-        stmt.setInt(3, jumlahAset);
-        stmt.setString(4, kondisi);
-        stmt.setString(5, lokasi);
-        stmt.setDate(6, tanggalBeli);
-        stmt.setInt(7, idAset); // ID Aset
-
-        stmt.executeUpdate();
-        JOptionPane.showMessageDialog(this, "Data aset berhasil diperbarui", "Sukses", JOptionPane.INFORMATION_MESSAGE);
-
-        // Refresh tabel setelah update
-        tampilkanData();
-        clearForm();
-
+        JOptionPane.showMessageDialog(this, "Jumlah harus berupa angka.", "Error", JOptionPane.ERROR_MESSAGE);
     } catch (SQLException e) {
-        JOptionPane.showMessageDialog(this, "Gagal memperbarui data aset: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(this, "Terjadi kesalahan: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
     }
     }//GEN-LAST:event_btnUpdateAsetActionPerformed
 
     private void tblAsetMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblAsetMouseClicked
-       int selectedRow = tblAset.getSelectedRow();
-
-    if (selectedRow != -1) {
-        txtNamaAset.setText(tblAset.getValueAt(selectedRow, 1).toString());  // Nama Aset
-        txtJumlah.setText(tblAset.getValueAt(selectedRow, 3).toString());   // Jumlah
-        txtKondisi.setText(tblAset.getValueAt(selectedRow, 4).toString());  // Kondisi
-        txtLokasi.setText(tblAset.getValueAt(selectedRow, 5).toString());   // Lokasi
-
-        // Set tanggal beli
-        java.util.Date tanggalBeli = (java.util.Date) tblAset.getValueAt(selectedRow, 6);
-        txtTanggalBeli.setDate(tanggalBeli);
-
-        // Set kategori ke ComboBox
-        String kategoriNama = tblAset.getValueAt(selectedRow, 2).toString(); // Nama Kategori
-        cmbKategori.setSelectedItem(kategoriNama);
-    }
+    int selectedRow = tblAset.getSelectedRow();  // Ambil baris yang dipilih di JTable
     
+    if (selectedRow != -1) {
+        // Ambil nilai dari kolom-kolom yang ada di JTable dan set ke komponen input form
+        String namaAset = tblAset.getValueAt(selectedRow, 1).toString(); // Kolom Nama Aset
+        String jumlah = tblAset.getValueAt(selectedRow, 2).toString(); // Kolom Jumlah
+        String tanggalBeliString = tblAset.getValueAt(selectedRow, 3).toString(); // Kolom Tanggal Beli (String)
+        String kondisi = tblAset.getValueAt(selectedRow, 4).toString(); // Kolom Kondisi
+        String lokasi = tblAset.getValueAt(selectedRow, 5).toString(); // Kolom Lokasi
+
+        // Convert String to java.sql.Date
+        java.sql.Date tanggalBeli = null;
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd"); // Sesuaikan format dengan format yang ada di database
+            java.util.Date utilDate = sdf.parse(tanggalBeliString);
+            tanggalBeli = new java.sql.Date(utilDate.getTime());
+        } catch (ParseException e) {
+            e.printStackTrace();  // Menangani error parsing tanggal
+        }
+
+        String keterangan = tblAset.getValueAt(selectedRow, 6).toString(); // Kolom Keterangan
+
+        // Set nilai ke form input
+        txtJumlah.setText(jumlah);
+        txtTanggalBeli.setDate(tanggalBeli);
+        txtKondisi.setText(kondisi);
+        txtLokasi.setText(lokasi);
+        txtKeterangan.setText(keterangan);
+
+        // Pilih nama aset di ComboBox berdasarkan Nama Aset yang ada pada JTable
+        setAsetComboBox(namaAset);
+    }
     }//GEN-LAST:event_tblAsetMouseClicked
 
+    private void setAsetComboBox(String namaAset) {
+    for (int i = 0; i < cmbAset.getItemCount(); i++) {
+        // Ambil nama aset dari ComboBox
+        String item = cmbAset.getItemAt(i);
+        
+        // Jika Nama Aset yang ada di ComboBox sama dengan namaAset, pilih item tersebut
+        if (item.equals(namaAset)) {
+            cmbAset.setSelectedIndex(i);
+            break;
+        }
+    }
+    }
+    
     private void btnHapusAsetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHapusAsetActionPerformed
             // Periksa apakah ada baris yang dipilih
     int row = tblAset.getSelectedRow();
@@ -424,12 +520,12 @@ public class MainFrame extends javax.swing.JFrame {
     }
 
     // Ambil ID Aset dari tabel
-    int idAset = (int) tblAset.getValueAt(row, 0); // Kolom pertama adalah ID Aset
+    int idTransaksiAset = (int) tblAset.getValueAt(row, 0); // Kolom pertama adalah ID Aset
 
     // Konfirmasi penghapusan
     int confirm = JOptionPane.showConfirmDialog(
         this,
-        "Apakah Anda yakin ingin menghapus data aset dengan ID: " + idAset + "?",
+        "Apakah Anda yakin ingin menghapus data aset dengan ID: " + idTransaksiAset + "?",
         "Konfirmasi Hapus",
         JOptionPane.YES_NO_OPTION
     );
@@ -437,10 +533,10 @@ public class MainFrame extends javax.swing.JFrame {
     // Jika pengguna memilih "Yes"
     if (confirm == JOptionPane.YES_OPTION) {
         try (Connection conn = KoneksiDB.getKoneksi();
-             PreparedStatement stmt = conn.prepareStatement("DELETE FROM aset WHERE id_aset = ?")) {
+             PreparedStatement stmt = conn.prepareStatement("DELETE FROM transaksi WHERE id_transaksi = ?")) {
 
             // Set parameter ID Aset
-            stmt.setInt(1, idAset);
+            stmt.setInt(1, idTransaksiAset);
 
             // Eksekusi penghapusan
             int rowsDeleted = stmt.executeUpdate();
@@ -464,7 +560,7 @@ public class MainFrame extends javax.swing.JFrame {
 
     private void btnCetakPDFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCetakPDFActionPerformed
         // Nama file output PDF
-    String filePath = "Laporan_Aset.pdf";
+    String filePath = "Laporan_Transaksi_Aset.pdf";
 
     // Membuat dokumen PDF
     Document document = new Document() {};
@@ -476,7 +572,7 @@ public class MainFrame extends javax.swing.JFrame {
         document.open();
 
         // Tambahkan judul laporan
-        document.add(new Paragraph("Laporan Aset", FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18, Font.BOLD)));
+        document.add(new Paragraph("Laporan Transaksi Aset", FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18, Font.BOLD)));
         document.add(new Paragraph(" "));
         document.add(new Paragraph("Tanggal Cetak: " + new java.util.Date()));
         document.add(new Paragraph(" "));
@@ -486,23 +582,23 @@ public class MainFrame extends javax.swing.JFrame {
         table.setWidthPercentage(100);
 
         // Tambahkan header kolom
-        table.addCell("ID Aset");
+        table.addCell("ID Transaksi");
         table.addCell("Nama Aset");
-        table.addCell("Kategori");
         table.addCell("Jumlah");
+        table.addCell("Tanggal Beli");
         table.addCell("Kondisi");
         table.addCell("Lokasi");
-        table.addCell("Tanggal Beli");
+        table.addCell("Keterangan");
 
         // Ambil data dari tabel aset
         for (int i = 0; i < tblAset.getRowCount(); i++) {
-            table.addCell(tblAset.getValueAt(i, 0).toString()); // ID Aset
+            table.addCell(tblAset.getValueAt(i, 0).toString()); // ID Transaksi
             table.addCell(tblAset.getValueAt(i, 1).toString()); // Nama Aset
-            table.addCell(tblAset.getValueAt(i, 2).toString()); // Kategori
-            table.addCell(tblAset.getValueAt(i, 3).toString()); // Jumlah
+            table.addCell(tblAset.getValueAt(i, 2).toString()); // Jumlah
+            table.addCell(tblAset.getValueAt(i, 3).toString()); // Tanggal Beli
             table.addCell(tblAset.getValueAt(i, 4).toString()); // Kondisi
             table.addCell(tblAset.getValueAt(i, 5).toString()); // Lokasi
-            table.addCell(tblAset.getValueAt(i, 6).toString()); // Tanggal Beli
+            table.addCell(tblAset.getValueAt(i, 6).toString()); // Keterangan
         }
 
         // Tambahkan tabel ke dokumen
@@ -518,14 +614,51 @@ public class MainFrame extends javax.swing.JFrame {
     }
     }//GEN-LAST:event_btnCetakPDFActionPerformed
 
-    private void setKategoriComboBox(String kategoriNama) {
-    for (int i = 0; i < cmbKategori.getItemCount(); i++) {
-        if (cmbKategori.getItemAt(i).equals(kategoriNama)) {
-            cmbKategori.setSelectedIndex(i);
-            return;
+    private void txtKeteranganActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtKeteranganActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtKeteranganActionPerformed
+
+    private void menuKategoriActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuKategoriActionPerformed
+    
+    }//GEN-LAST:event_menuKategoriActionPerformed
+
+    private void menuKategoriMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_menuKategoriMouseClicked
+    // Menampilkan frame untuk mengelola kategori
+    KategoriFrame kategoriFrame = new KategoriFrame();
+    kategoriFrame.setVisible(true); // Menampilkan kategori frame
+    }//GEN-LAST:event_menuKategoriMouseClicked
+
+    public void updateComboBoxAset() {
+    try (Connection conn = KoneksiDB.getKoneksi();
+         PreparedStatement stmt = conn.prepareStatement("SELECT nama_aset FROM aset")) {
+        
+        ResultSet rs = stmt.executeQuery();
+        cmbAset.removeAllItems(); // Hapus semua item di ComboBox
+        cmbAset.addItem("Pilih Aset"); // Tambahkan item default
+        
+        while (rs.next()) {
+            cmbAset.addItem(rs.getString("nama_aset")); // Tambahkan aset dari database
         }
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(this, "Gagal memperbarui data aset: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
     }
 }
+    
+    private void menuAsetMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_menuAsetMouseClicked
+    // Menampilkan frame untuk mengelola aset
+    AsetFrame asetFrame = new AsetFrame();
+    asetFrame.setVisible(true); // Menampilkan kategori frame
+    
+    // Menambahkan WindowListener untuk menangani event saat frame ditutup
+    asetFrame.addWindowListener(new java.awt.event.WindowAdapter() {
+        @Override
+        public void windowClosed(java.awt.event.WindowEvent e) {
+            // Memperbarui ComboBox di MainFrame setelah FrameAset ditutup
+            updateComboBoxAset();
+        }
+    });
+    }//GEN-LAST:event_menuAsetMouseClicked
+
     /**
      * @param args the command line arguments
      */
@@ -536,37 +669,39 @@ public class MainFrame extends javax.swing.JFrame {
     }
     
  private void clearForm() {
-    txtNamaAset.setText("");
-    cmbKategori.setSelectedIndex(0); // Reset ComboBox ke pilihan pertama
+    cmbAset.setSelectedIndex(0);
     txtJumlah.setText("");
     txtKondisi.setText("");
     txtLokasi.setText("");
-    txtTanggalBeli.setDate(null); // Reset JDateChooser
+    txtTanggalBeli.setDate(null);
+    txtKeterangan.setText("");
 }
  
 // Fungsi untuk menampilkan data dari database ke JTable
     private void tampilkanData() {
-     DefaultTableModel model = (DefaultTableModel) tblAset.getModel();
-    model.setRowCount(0); // Hapus data lama di tabel
-
     try (Connection conn = KoneksiDB.getKoneksi();
-         Statement stmt = conn.createStatement();
-         ResultSet rs = stmt.executeQuery(
-             "SELECT a.id_aset, a.nama_aset, k.nama_kategori, a.jumlah, a.kondisi, a.lokasi, a.tanggal_beli " +
-             "FROM aset a JOIN kategori k ON a.id_kategori = k.id_kategori")) {
+         PreparedStatement stmt = conn.prepareStatement(
+                 "SELECT t.id_transaksi, a.nama_aset, t.tanggal_beli, t.jumlah, t.kondisi, t.lokasi, t.keterangan " +
+                 "FROM transaksi t " +
+                 "JOIN aset a ON t.id_aset = a.id_aset")) {
+
+        ResultSet rs = stmt.executeQuery();
+        DefaultTableModel model = (DefaultTableModel) tblAset.getModel();
+        model.setRowCount(0); // Hapus semua data di JTable
 
         while (rs.next()) {
-            model.addRow(new Object[] {
-                rs.getInt("id_aset"),               // Pastikan ini Integer
-                rs.getString("nama_aset"),
-                rs.getString("nama_kategori"),      // Nama kategori
-                rs.getInt("jumlah"),                // Jumlah juga harus Integer
-                rs.getString("kondisi"),
-                rs.getString("lokasi"),
-                rs.getDate("tanggal_beli")
-            });
+            Object[] row = {
+                    rs.getInt("id_transaksi"),
+                    rs.getString("nama_aset"),
+                    rs.getInt("jumlah"),
+                    rs.getDate("tanggal_beli"),
+                    rs.getString("kondisi"),
+                    rs.getString("lokasi"),
+                    rs.getString("keterangan")
+                    
+            };
+            model.addRow(row);
         }
-
     } catch (SQLException e) {
         JOptionPane.showMessageDialog(this, "Gagal menampilkan data: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
     }
@@ -578,20 +713,23 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JButton btnHapusAset;
     private javax.swing.JButton btnTambahAset;
     private javax.swing.JButton btnUpdateAset;
-    private javax.swing.JComboBox<String> cmbKategori;
+    private javax.swing.JComboBox<String> cmbAset;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JMenu menuAset;
+    private javax.swing.JMenuBar menuBar;
+    private javax.swing.JMenu menuKategori;
     private javax.swing.JTable tblAset;
     private javax.swing.JTextField txtJumlah;
+    private javax.swing.JTextField txtKeterangan;
     private javax.swing.JTextField txtKondisi;
     private javax.swing.JTextField txtLokasi;
-    private javax.swing.JTextField txtNamaAset;
     private com.toedter.calendar.JDateChooser txtTanggalBeli;
     // End of variables declaration//GEN-END:variables
 }
