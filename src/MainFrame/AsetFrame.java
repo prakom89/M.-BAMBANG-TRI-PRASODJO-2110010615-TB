@@ -5,6 +5,15 @@
  */
 package MainFrame;
 
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.FontFactory;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
+import java.awt.Font;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -81,6 +90,7 @@ public class AsetFrame extends javax.swing.JFrame {
         jLabel4 = new javax.swing.JLabel();
         cmbKategori = new javax.swing.JComboBox<>();
         txtTanggalBeli = new com.toedter.calendar.JDateChooser();
+        btnCetakAset = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -133,6 +143,14 @@ public class AsetFrame extends javax.swing.JFrame {
 
         cmbKategori.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
+        btnCetakAset.setFont(new java.awt.Font("Tahoma", 1, 13)); // NOI18N
+        btnCetakAset.setText("CETAK LAPORAN ASET");
+        btnCetakAset.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCetakAsetActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -149,23 +167,23 @@ public class AsetFrame extends javax.swing.JFrame {
                                 .addComponent(btnClose, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(jScrollPane1)
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addGap(0, 0, Short.MAX_VALUE)
-                                .addComponent(jLabel4)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(txtTanggalBeli, javax.swing.GroupLayout.PREFERRED_SIZE, 411, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                                 .addComponent(jLabel2)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(txtNamaAset, javax.swing.GroupLayout.PREFERRED_SIZE, 411, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                                 .addComponent(jLabel3)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(cmbKategori, javax.swing.GroupLayout.PREFERRED_SIZE, 411, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addComponent(cmbKategori, javax.swing.GroupLayout.PREFERRED_SIZE, 411, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addGap(0, 0, Short.MAX_VALUE)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                        .addComponent(jLabel4)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                        .addComponent(txtTanggalBeli, javax.swing.GroupLayout.PREFERRED_SIZE, 411, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addComponent(btnTambah, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 411, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(btnCetakAset, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 212, javax.swing.GroupLayout.PREFERRED_SIZE))))
                         .addContainerGap())))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(btnTambah, javax.swing.GroupLayout.PREFERRED_SIZE, 411, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -191,8 +209,10 @@ public class AsetFrame extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnTambah, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 146, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnCetakAset)
+                .addGap(9, 9, 9))
         );
 
         pack();
@@ -263,6 +283,56 @@ public class AsetFrame extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_txtNamaAsetActionPerformed
 
+    private void btnCetakAsetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCetakAsetActionPerformed
+    // Nama file output PDF
+    String filePath = "Laporan_Aset.pdf";
+
+    // Membuat dokumen PDF
+    Document document = new Document() {};
+    try {
+        // Buat instance PDF Writer
+        PdfWriter.getInstance((com.itextpdf.text.Document) document, new FileOutputStream(filePath));
+
+        // Membuka dokumen
+        document.open();
+
+        // Tambahkan judul laporan
+        document.add(new Paragraph("Laporan Aset", FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18, Font.BOLD)));
+        document.add(new Paragraph(" "));
+        document.add(new Paragraph("Tanggal Cetak: " + new java.util.Date()));
+        document.add(new Paragraph(" "));
+
+        // Membuat tabel
+        PdfPTable table = new PdfPTable(4); // Jumlah kolom tabel
+        table.setWidthPercentage(100);
+
+        // Tambahkan header kolom
+        table.addCell("ID Aset");
+        table.addCell("Nama Aset");
+        table.addCell("Nama Kategori");
+        table.addCell("Tanggal Beli");
+
+        // Ambil data dari tabel aset
+        for (int i = 0; i < tblAset.getRowCount(); i++) {
+            table.addCell(tblAset.getValueAt(i, 0).toString()); // ID Aset
+            table.addCell(tblAset.getValueAt(i, 1).toString()); // Nama Aset
+            table.addCell(tblAset.getValueAt(i, 2).toString()); // Nama Kategori
+            table.addCell(tblAset.getValueAt(i, 3).toString()); // Tanggal Beli
+        }
+
+        // Tambahkan tabel ke dokumen
+        document.add(table);
+
+        // Tampilkan pesan sukses
+        JOptionPane.showMessageDialog(this, "Laporan berhasil dicetak ke " + filePath, "Sukses", JOptionPane.INFORMATION_MESSAGE);
+
+    } catch (DocumentException | FileNotFoundException e) {
+        JOptionPane.showMessageDialog(this, "Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    } finally {
+        document.close();
+    }
+    }//GEN-LAST:event_btnCetakAsetActionPerformed
+
     private void clearForm() {
     txtNamaAset.setText("");
     cmbKategori.setSelectedIndex(0);
@@ -329,6 +399,7 @@ public class AsetFrame extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnCetakAset;
     private javax.swing.JButton btnClose;
     private javax.swing.JButton btnTambah;
     private javax.swing.JComboBox<String> cmbKategori;
