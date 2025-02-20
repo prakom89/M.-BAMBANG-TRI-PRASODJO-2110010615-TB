@@ -68,6 +68,8 @@ public class MainFrame extends javax.swing.JFrame {
         cmbAset = new javax.swing.JComboBox<>();
         jLabel8 = new javax.swing.JLabel();
         txtKeterangan = new javax.swing.JTextField();
+        txtSearch = new javax.swing.JTextField();
+        btnSearch = new javax.swing.JButton();
         menuBar = new javax.swing.JMenuBar();
         menuKategori = new javax.swing.JMenu();
         menuAset = new javax.swing.JMenu();
@@ -162,6 +164,13 @@ public class MainFrame extends javax.swing.JFrame {
             }
         });
 
+        btnSearch.setText("CARI");
+        btnSearch.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSearchActionPerformed(evt);
+            }
+        });
+
         menuKategori.setLabel("Kategori");
         menuKategori.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -227,7 +236,12 @@ public class MainFrame extends javax.swing.JFrame {
                             .addComponent(jScrollPane1)
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                                 .addGap(0, 0, Short.MAX_VALUE)
-                                .addComponent(btnCetakPDF, javax.swing.GroupLayout.PREFERRED_SIZE, 181, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                                .addComponent(btnCetakPDF, javax.swing.GroupLayout.PREFERRED_SIZE, 181, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 782, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnSearch, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -270,8 +284,12 @@ public class MainFrame extends javax.swing.JFrame {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(btnHapusAset, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(btnClear, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addGap(33, 33, 33)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 340, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(32, 32, 32)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnSearch))
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(btnCetakPDF, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -659,6 +677,41 @@ public class MainFrame extends javax.swing.JFrame {
     });
     }//GEN-LAST:event_menuAsetMouseClicked
 
+    private void btnSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchActionPerformed
+        cariAset();
+    }//GEN-LAST:event_btnSearchActionPerformed
+    
+    // Fungsi untuk menampilkan data berdasarkan pencarian
+    private void cariAset() {
+        String keyword = txtSearch.getText().trim();
+        try (Connection conn = KoneksiDB.getKoneksi();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "SELECT t.id_transaksi, a.nama_aset, t.tanggal_beli, t.jumlah, t.kondisi, t.lokasi, t.keterangan " +
+                     "FROM transaksi t " +
+                     "JOIN aset a ON t.id_aset = a.id_aset " +
+                     "WHERE a.nama_aset LIKE ?")) {
+
+            stmt.setString(1, "%" + keyword + "%"); // Menggunakan LIKE untuk pencarian fleksibel
+            ResultSet rs = stmt.executeQuery();
+            DefaultTableModel model = (DefaultTableModel) tblAset.getModel();
+            model.setRowCount(0); // Hapus semua data di JTable sebelum menampilkan hasil pencarian
+
+            while (rs.next()) {
+                Object[] row = {
+                    rs.getInt("id_transaksi"),
+                    rs.getString("nama_aset"),
+                    rs.getInt("jumlah"),
+                    rs.getDate("tanggal_beli"),
+                    rs.getString("kondisi"),
+                    rs.getString("lokasi"),
+                    rs.getString("keterangan")
+                };
+                model.addRow(row);
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Gagal mencari data: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
     /**
      * @param args the command line arguments
      */
@@ -711,6 +764,7 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JButton btnCetakPDF;
     private javax.swing.JButton btnClear;
     private javax.swing.JButton btnHapusAset;
+    private javax.swing.JButton btnSearch;
     private javax.swing.JButton btnTambahAset;
     private javax.swing.JButton btnUpdateAset;
     private javax.swing.JComboBox<String> cmbAset;
@@ -730,6 +784,7 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JTextField txtKeterangan;
     private javax.swing.JTextField txtKondisi;
     private javax.swing.JTextField txtLokasi;
+    private javax.swing.JTextField txtSearch;
     private com.toedter.calendar.JDateChooser txtTanggalBeli;
     // End of variables declaration//GEN-END:variables
 }
